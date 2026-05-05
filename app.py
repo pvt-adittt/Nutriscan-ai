@@ -4,13 +4,13 @@ import time
 from PIL import Image
 
 # --- 1. AUTHENTICATION ---
-try:
-    # This looks for the key in Streamlit's hidden vault
+if "GOOGLE_API_KEY" not in st.secrets:
+    st.error("Secret name mismatch!")
+    st.write("I found these keys in your Secrets box:", list(st.secrets.keys()))
+    st.stop()
+else:
     MY_API_KEY = st.secrets["AIzaSyCkREMnMy7sGhxYAWSQerEYsnntVtN5Aok"]
     client = genai.Client(api_key=MY_API_KEY)
-except Exception as e:
-    st.error("API Key not found. Please add it to 'Advanced Settings > Secrets' in the Streamlit Dashboard.")
-    st.stop()
 
 # --- 2. UI SETUP ---
 st.set_page_config(page_title="NutriScan AI", page_icon="🥗")
