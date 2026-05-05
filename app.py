@@ -38,7 +38,7 @@ if img_file:
             for i in range(3): # Retry logic for 503 errors
                 try:
                     response = client.models.generate_content(
-                        model="gemini-2.0-flash", 
+                        model="gemini-2.5-flash", 
                         contents=[prompt, img]
                     )
                     st.subheader("📊 Macro Report")
