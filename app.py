@@ -9,7 +9,7 @@ if "GOOGLE_API_KEY" not in st.secrets:
     st.write("I found these keys in your Secrets box:", list(st.secrets.keys()))
     st.stop()
 else:
-    MY_API_KEY = st.secrets["AIzaSyCkREMnMy7sGhxYAWSQerEYsnntVtN5Aok"]
+    MY_API_KEY = st.secrets["GOOGLE_API_KEY"]
     client = genai.Client(api_key=MY_API_KEY)
 
 # --- 2. UI SETUP ---
