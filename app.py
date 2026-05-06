@@ -35,19 +35,22 @@ def get_rotated_client():
         st.error("Key Rotation Error: Ensure 'KEYS' is a list in your Streamlit Secrets.")
         st.stop()
 
-# 3. CACHED ANALYSIS FUNCTION
+# 3. CACHED ANALYSIS FUNCTION (UPDATED)
 @st.cache_data(show_spinner=False)
 def analyze_image_with_cache(image_bytes):
-    # Initialize a fresh client with a rotated key for this request
-    client = get_rotated_client()
-    
     img_for_ai = Image.open(io.BytesIO(image_bytes))
     prompt = "Identify the food. Provide a table: Item, Calories, Protein, Carbs, Fats. Add a health tip."
     
+    last_error = ""
+    
     # Attempt cycle
     for attempt in range(5):
+        # NEW: Fetch a new random key for EVERY attempt, not just once at the start.
+        # If Key A gives a 429 error, Attempt 2 might use Key B to bypass it instantly.
+        current_client = get_rotated_client()
+        
         try:
-            response = client.models.generate_content(
+            response = current_client.models.generate_content(
                 model="gemini-2.5-flash", 
                 contents=[prompt, img_for_ai]
             )
@@ -55,16 +58,19 @@ def analyze_image_with_cache(image_bytes):
             
         except Exception as e:
             err_msg = str(e).lower()
+            last_error = str(e)
+            
             if "503" in err_msg or "429" in err_msg:
-                # If a key is busy, wait and the next attempt might 
-                # (optionally) use a different key if we moved client init inside the loop
-                time.sleep(4)
+                # Sleep briefly before the loop restarts and grabs a new key
+                time.sleep(2) 
                 continue
             else:
+                # If it's a completely different error (like an invalid key), stop immediately
                 raise Exception(f"Technical Error: {e}")
                 
-    raise Exception("All API lanes are currently congested. Please wait a moment.")
-
+    # If all 5 attempts fail across multiple keys, show the last actual error from Google
+    raise Exception(f"All API lanes congested. Last issue: {last_error}")
+    
 # 4. SIDEBAR
 with st.sidebar:
     st.title("🥗 NutriScan")
