@@ -2,7 +2,8 @@ import streamlit as st
 from google import genai
 import time
 from PIL import Image
-import io  # Added to handle image bytes for caching
+import io
+import random
 
 # 1. PAGE CONFIG & MODERN UI STYLING
 st.set_page_config(page_title="NutriScan AI", page_icon="🥗", layout="wide")
@@ -23,55 +24,57 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 2. SECURE AUTHENTICATION
-try:
-    MY_API_KEY = st.secrets["GOOGLE_API_KEY"]
-    client = genai.Client(api_key=MY_API_KEY)
-except Exception:
-    st.error("Missing API Key in Streamlit Secrets.")
-    st.stop()
+# 2. HELPER: KEY ROTATION
+def get_rotated_client():
+    """Picks a random key from the secrets list to avoid rate limits."""
+    try:
+        keys = st.secrets["KEYS"]
+        selected_key = random.choice(keys)
+        return genai.Client(api_key=selected_key)
+    except Exception:
+        st.error("Key Rotation Error: Ensure 'KEYS' is a list in your Streamlit Secrets.")
+        st.stop()
 
-# --- NEW: CACHED ANALYSIS FUNCTION ---
-# show_spinner=False because we use our own spinner below
+# 3. CACHED ANALYSIS FUNCTION
 @st.cache_data(show_spinner=False)
 def analyze_image_with_cache(image_bytes):
-    """
-    Sends the image to the AI. If successful, Streamlit remembers the answer.
-    If it fails after 5 tries, it raises an error so the failure isn't cached.
-    """
-    # Rebuild the image from bytes for the AI
+    # Initialize a fresh client with a rotated key for this request
+    client = get_rotated_client()
+    
     img_for_ai = Image.open(io.BytesIO(image_bytes))
     prompt = "Identify the food. Provide a table: Item, Calories, Protein, Carbs, Fats. Add a health tip."
     
+    # Attempt cycle
     for attempt in range(5):
         try:
             response = client.models.generate_content(
                 model="gemini-2.5-flash", 
                 contents=[prompt, img_for_ai]
             )
-            return response.text # Success! This result gets cached forever for this specific image.
+            return response.text
             
         except Exception as e:
-            if "503" in str(e) or "429" in str(e):
-                time.sleep(4) # Wait and try again
+            err_msg = str(e).lower()
+            if "503" in err_msg or "429" in err_msg:
+                # If a key is busy, wait and the next attempt might 
+                # (optionally) use a different key if we moved client init inside the loop
+                time.sleep(4)
                 continue
             else:
-                raise Exception(f"Technical Error: {e}") # Other errors
+                raise Exception(f"Technical Error: {e}")
                 
-    # If it fails 5 times, trigger the overloaded error
-    raise Exception("The AI server is currently overloaded. Please wait 30 seconds and try again.")
-# -------------------------------------
+    raise Exception("All API lanes are currently congested. Please wait a moment.")
 
-# 3. SIDEBAR (Clears up the main screen)
+# 4. SIDEBAR
 with st.sidebar:
     st.title("🥗 NutriScan")
-    st.write("Instant Nutritional Intelligence")
+    st.write("Multi-Lane AI Edition")
     st.divider()
     input_mode = st.radio("Select Input Method", ("Camera", "Upload File"))
     st.divider()
-    st.info("Tip: Good lighting and clear food visibility improve accuracy.")
+    st.info("Technical Status: Key Rotation & Image Caching are ACTIVE.")
 
-# 4. MAIN INTERFACE LAYOUT
+# 5. MAIN INTERFACE
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
@@ -90,17 +93,16 @@ with col_right:
     
     if img_file:
         if st.button("Analyze Nutrition"):
-            with st.spinner("AI is processing (Pulling from cache if already scanned)..."):
+            with st.spinner("Rotating API keys and processing..."):
                 try:
-                    # Pass the raw bytes of the image to the cached function
-                    # If this exact byte-pattern was scanned before, it returns instantly!
+                    # Logic: If image bytes match a previous scan, 
+                    # it returns the result without calling ANY key.
                     result_text = analyze_image_with_cache(img_file.getvalue())
                     
                     st.success("Analysis Complete!")
                     st.markdown(result_text)
                     
                 except Exception as e:
-                    # This catches the errors raised inside the cached function
                     st.error(str(e))
     else:
         st.info("Awaiting input image...")
