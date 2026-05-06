@@ -2,11 +2,11 @@ import streamlit as st
 from google import genai
 import time
 from PIL import Image
+import io  # Added to handle image bytes for caching
 
 # 1. PAGE CONFIG & MODERN UI STYLING
 st.set_page_config(page_title="NutriScan AI", page_icon="🥗", layout="wide")
 
-# Custom CSS for a cleaner, engineering-grade look
 st.markdown("""
     <style>
     .stApp { background-color: #fcfcfc; }
@@ -30,6 +30,37 @@ try:
 except Exception:
     st.error("Missing API Key in Streamlit Secrets.")
     st.stop()
+
+# --- NEW: CACHED ANALYSIS FUNCTION ---
+# show_spinner=False because we use our own spinner below
+@st.cache_data(show_spinner=False)
+def analyze_image_with_cache(image_bytes):
+    """
+    Sends the image to the AI. If successful, Streamlit remembers the answer.
+    If it fails after 5 tries, it raises an error so the failure isn't cached.
+    """
+    # Rebuild the image from bytes for the AI
+    img_for_ai = Image.open(io.BytesIO(image_bytes))
+    prompt = "Identify the food. Provide a table: Item, Calories, Protein, Carbs, Fats. Add a health tip."
+    
+    for attempt in range(5):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash", 
+                contents=[prompt, img_for_ai]
+            )
+            return response.text # Success! This result gets cached forever for this specific image.
+            
+        except Exception as e:
+            if "503" in str(e) or "429" in str(e):
+                time.sleep(4) # Wait and try again
+                continue
+            else:
+                raise Exception(f"Technical Error: {e}") # Other errors
+                
+    # If it fails 5 times, trigger the overloaded error
+    raise Exception("The AI server is currently overloaded. Please wait 30 seconds and try again.")
+# -------------------------------------
 
 # 3. SIDEBAR (Clears up the main screen)
 with st.sidebar:
@@ -59,28 +90,17 @@ with col_right:
     
     if img_file:
         if st.button("Analyze Nutrition"):
-            # Increased retry count to handle 503 spikes
-            success = False
-            for attempt in range(5): 
-                with st.spinner(f"AI is processing (Attempt {attempt + 1}/5)..."):
-                    try:
-                        # Using 2.5-flash as confirmed by your dashboard
-                        response = client.models.generate_content(
-                            model="gemini-2.5-flash", 
-                            contents=["Identify the food. Provide a table: Item, Calories, Protein, Carbs, Fats. Add a health tip.", img]
-                        )
-                        st.success("Analysis Complete!")
-                        st.markdown(response.text)
-                        success = True
-                        break
-                    except Exception as e:
-                        if "503" in str(e) or "429" in str(e):
-                            time.sleep(4) # Wait longer between retries
-                            continue
-                        else:
-                            st.error(f"Technical Error: {e}")
-                            break
-            if not success:
-                st.error("The AI server is currently overloaded. Please wait 30 seconds and try again.")
+            with st.spinner("AI is processing (Pulling from cache if already scanned)..."):
+                try:
+                    # Pass the raw bytes of the image to the cached function
+                    # If this exact byte-pattern was scanned before, it returns instantly!
+                    result_text = analyze_image_with_cache(img_file.getvalue())
+                    
+                    st.success("Analysis Complete!")
+                    st.markdown(result_text)
+                    
+                except Exception as e:
+                    # This catches the errors raised inside the cached function
+                    st.error(str(e))
     else:
         st.info("Awaiting input image...")
