@@ -2,12 +2,11 @@ import streamlit as st
 from google import genai
 import time
 from PIL import Image
-import io
-import random
 
 # 1. PAGE CONFIG & MODERN UI STYLING
 st.set_page_config(page_title="NutriScan AI", page_icon="🥗", layout="wide")
 
+# Custom CSS for a cleaner, engineering-grade look
 st.markdown("""
     <style>
     .stApp { background-color: #fcfcfc; }
@@ -24,63 +23,24 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 2. HELPER: KEY ROTATION
-def get_rotated_client():
-    """Picks a random key from the secrets list to avoid rate limits."""
-    try:
-        keys = st.secrets["KEYS"]
-        selected_key = random.choice(keys)
-        return genai.Client(api_key=selected_key)
-    except Exception:
-        st.error("Key Rotation Error: Ensure 'KEYS' is a list in your Streamlit Secrets.")
-        st.stop()
+# 2. SECURE AUTHENTICATION
+try:
+    MY_API_KEY = st.secrets["GOOGLE_API_KEY"]
+    client = genai.Client(api_key=MY_API_KEY)
+except Exception:
+    st.error("Missing API Key in Streamlit Secrets.")
+    st.stop()
 
-# 3. CACHED ANALYSIS FUNCTION (UPDATED)
-@st.cache_data(show_spinner=False)
-def analyze_image_with_cache(image_bytes):
-    img_for_ai = Image.open(io.BytesIO(image_bytes))
-    prompt = "Identify the food. Provide a table: Item, Calories, Protein, Carbs, Fats. Add a health tip."
-    
-    last_error = ""
-    
-    # Attempt cycle
-    for attempt in range(5):
-        # NEW: Fetch a new random key for EVERY attempt, not just once at the start.
-        # If Key A gives a 429 error, Attempt 2 might use Key B to bypass it instantly.
-        current_client = get_rotated_client()
-        
-        try:
-            response = current_client.models.generate_content(
-                model="gemini-2.5-flash", 
-                contents=[prompt, img_for_ai]
-            )
-            return response.text
-            
-        except Exception as e:
-            err_msg = str(e).lower()
-            last_error = str(e)
-            
-            if "503" in err_msg or "429" in err_msg:
-                # Sleep briefly before the loop restarts and grabs a new key
-                time.sleep(2) 
-                continue
-            else:
-                # If it's a completely different error (like an invalid key), stop immediately
-                raise Exception(f"Technical Error: {e}")
-                
-    # If all 5 attempts fail across multiple keys, show the last actual error from Google
-    raise Exception(f"All API lanes congested. Last issue: {last_error}")
-    
-# 4. SIDEBAR
+# 3. SIDEBAR (Clears up the main screen)
 with st.sidebar:
     st.title("🥗 NutriScan")
-    st.write("Multi-Lane AI Edition")
+    st.write("Instant Nutritional Intelligence")
     st.divider()
     input_mode = st.radio("Select Input Method", ("Camera", "Upload File"))
     st.divider()
-    st.info("Technical Status: Key Rotation & Image Caching are ACTIVE.")
+    st.info("Tip: Good lighting and clear food visibility improve accuracy.")
 
-# 5. MAIN INTERFACE
+# 4. MAIN INTERFACE LAYOUT
 col_left, col_right = st.columns([1, 1], gap="large")
 
 with col_left:
@@ -99,16 +59,28 @@ with col_right:
     
     if img_file:
         if st.button("Analyze Nutrition"):
-            with st.spinner("Rotating API keys and processing..."):
-                try:
-                    # Logic: If image bytes match a previous scan, 
-                    # it returns the result without calling ANY key.
-                    result_text = analyze_image_with_cache(img_file.getvalue())
-                    
-                    st.success("Analysis Complete!")
-                    st.markdown(result_text)
-                    
-                except Exception as e:
-                    st.error(str(e))
+            # Increased retry count to handle 503 spikes
+            success = False
+            for attempt in range(5): 
+                with st.spinner(f"AI is processing (Attempt {attempt + 1}/5)..."):
+                    try:
+                        # Using 2.5-flash as confirmed by your dashboard
+                        response = client.models.generate_content(
+                            model="gemini-2.5-flash", 
+                            contents=["Identify the food. Provide a table: Item, Calories, Protein, Carbs, Fats. Add a health tip.", img]
+                        )
+                        st.success("Analysis Complete!")
+                        st.markdown(response.text)
+                        success = True
+                        break
+                    except Exception as e:
+                        if "503" in str(e) or "429" in str(e):
+                            time.sleep(4) # Wait longer between retries
+                            continue
+                        else:
+                            st.error(f"Technical Error: {e}")
+                            break
+            if not success:
+                st.error("The AI server is currently overloaded. Please wait 30 seconds and try again.")
     else:
         st.info("Awaiting input image...")
