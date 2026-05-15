@@ -91,9 +91,9 @@ else:
     if "input_mode" not in st.session_state:
             st.session_state.input_mode = "Camera"
 
-    if st.button("📷 Camera", use_container_width=True):
+    if st.button("Camera", use_container_width=True):
         st.session_state.input_mode = "Camera"
-    if st.button("📁 Upload File", use_container_width=True):
+    if st.button("Upload File", use_container_width=True):
         st.session_state.input_mode = "Upload File"
 
     input_mode = st.session_state.input_mode
