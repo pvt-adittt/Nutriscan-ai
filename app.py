@@ -115,7 +115,7 @@ else:
         st.subheader("📸 Food Input")
 
         if input_mode == "📷 Camera":
-            img_file = st.camera_input("Scanner", label_visibility="collapsed")
+            img_file = st.camera_input(" ", label_visibility="collapsed")
         else:
             img_file = st.file_uploader(
                 "upload",
