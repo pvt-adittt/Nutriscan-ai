@@ -1,73 +1,437 @@
-/* --- style.css --- */
+/* =====================================================
+   NutriScan AI — Premium Wellness UI
+   Theme: Organic Dark / Warm Editorial
+   ===================================================== */
 
-/* 1. Global App Background */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap');
+
+/* ── CSS Variables ────────────────────────────────── */
+:root {
+  --bg-base:        #0d1a0f;
+  --bg-panel:       #132016;
+  --bg-card:        #1a2e1d;
+  --bg-card-hover:  #213826;
+  --accent-lime:    #b5e550;
+  --accent-gold:    #e8c96a;
+  --accent-sage:    #7aab7a;
+  --text-primary:   #f0ede4;
+  --text-secondary: #a8b89e;
+  --text-muted:     #5a7060;
+  --border:         rgba(181, 229, 80, 0.12);
+  --border-bright:  rgba(181, 229, 80, 0.35);
+  --shadow-glow:    0 0 60px rgba(90, 180, 90, 0.08);
+  --font-display:   'Playfair Display', Georgia, serif;
+  --font-body:      'DM Sans', sans-serif;
+  --font-mono:      'DM Mono', monospace;
+  --radius:         14px;
+  --radius-sm:      8px;
+}
+
+/* ── Global Reset ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, [data-testid="stAppViewContainer"] {
+  background-color: var(--bg-base) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-body) !important;
+}
+
 .stApp {
-    background-color: #f4fbf7; /* Soft mint/sage background */
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: var(--bg-base) !important;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(60, 120, 60, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(40, 90, 50, 0.12) 0%, transparent 60%) !important;
+  min-height: 100vh;
 }
 
-/* 2. Custom Landing Page Elements */
-.hero-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 4rem 1rem;
-    background: linear-gradient(135deg, #ffffff 0%, #e6f4ea 100%);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-    margin-top: 2rem;
-    border: 1px solid #d1e8d8;
+/* ── Scrollbar ────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+
+/* ── Typography ───────────────────────────────────── */
+h1, h2, h3 {
+  font-family: var(--font-display) !important;
+  color: var(--text-primary) !important;
+  line-height: 1.15 !important;
 }
 
+p, span, label, div {
+  font-family: var(--font-body) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── ─────── LANDING PAGE ─────────────────────────── */
+
+/* Hero container */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 88vh;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating decorative orb behind title */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(80, 160, 80, 0.1) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: orb-pulse 6s ease-in-out infinite;
+}
+
+@keyframes orb-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  50%       { transform: translate(-50%, -50%) scale(1.12); opacity: 1; }
+}
+
+/* Badge chip */
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(181, 229, 80, 0.08);
+  border: 1px solid var(--border-bright);
+  border-radius: 99px;
+  padding: 6px 18px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-lime) !important;
+  margin-bottom: 2rem;
+  animation: fade-up 0.6s ease both;
+}
+
+/* Main headline */
+.hero-headline {
+  font-family: var(--font-display) !important;
+  font-size: clamp(2.8rem, 7vw, 5.5rem) !important;
+  font-weight: 900 !important;
+  color: var(--text-primary) !important;
+  line-height: 1.05 !important;
+  max-width: 820px;
+  margin-bottom: 0.3em;
+  animation: fade-up 0.7s 0.1s ease both;
+}
+
+.hero-headline em {
+  font-style: italic;
+  color: var(--accent-lime) !important;
+}
+
+/* Subheadline / quote */
 .hero-quote {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #064e3b; /* Deep forest green */
-    margin-bottom: 0.5rem;
-    letter-spacing: -1px;
+  font-family: var(--font-display) !important;
+  font-size: clamp(1rem, 2.2vw, 1.3rem) !important;
+  font-style: italic;
+  color: var(--accent-gold) !important;
+  max-width: 560px;
+  line-height: 1.65;
+  margin-bottom: 0.75em;
+  animation: fade-up 0.7s 0.2s ease both;
 }
 
-.hero-subtitle {
-    font-size: 1.2rem;
-    color: #047857;
-    margin-bottom: 2rem;
-    font-weight: 500;
+/* Tagline */
+.hero-tagline {
+  font-size: 1.05rem !important;
+  color: var(--text-secondary) !important;
+  font-weight: 300;
+  max-width: 480px;
+  line-height: 1.7;
+  margin-bottom: 2.8rem;
+  animation: fade-up 0.7s 0.3s ease both;
 }
 
-/* 3. Button Styling (The big primary buttons) */
-div.stButton > button {
-    background-color: #10b981; /* Vibrant Emerald */
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 700;
-    padding: 0.5rem 2rem;
-    border-radius: 50px; /* Pill shape */
-    border: none;
-    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-    transition: all 0.3s ease;
-    width: 100%;
-    height: 3.5em;
+/* CTA Button */
+.cta-btn-wrap {
+  animation: fade-up 0.7s 0.4s ease both;
 }
 
-div.stButton > button:hover {
-    background-color: #059669;
-    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
-    transform: translateY(-2px);
-    color: white;
+/* Streamlit button overrides for CTA */
+.cta-btn button, [data-testid="baseButton-primary"] {
+  background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%) !important;
+  color: #0d1a0f !important;
+  font-family: var(--font-body) !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.04em;
+  padding: 0.85em 2.6em !important;
+  border-radius: 99px !important;
+  border: none !important;
+  box-shadow: 0 4px 30px rgba(100, 200, 80, 0.3) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  min-width: 220px;
+  cursor: pointer;
 }
 
-/* 4. Secondary UI elements */
-.stRadio > div {
-    background-color: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+.cta-btn button:hover, [data-testid="baseButton-primary"]:hover {
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 8px 40px rgba(100, 200, 80, 0.45) !important;
 }
 
-/* Make images look like polaroids/cards */
+/* Divider dots row */
+.hero-dots {
+  display: flex;
+  gap: 10px;
+  margin-top: 3.5rem;
+  animation: fade-up 0.7s 0.55s ease both;
+}
+.hero-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.4;
+}
+.hero-dot.active {
+  background: var(--accent-lime);
+  opacity: 1;
+  box-shadow: 0 0 8px var(--accent-lime);
+}
+
+/* Scroll hint */
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-muted) !important;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: bounce 2.5s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(6px); }
+}
+
+/* Feature pills under CTA */
+.feature-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 2rem;
+  animation: fade-up 0.7s 0.5s ease both;
+}
+.feature-pill {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 5px 14px;
+  font-size: 0.78rem !important;
+  color: var(--text-secondary) !important;
+  font-weight: 400;
+}
+
+/* ── ─────── APP PAGE ──────────────────────────────── */
+
+/* Main app wrapper */
+.app-header {
+  padding: 1.2rem 0 0.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.app-logo {
+  font-family: var(--font-display) !important;
+  font-size: 1.6rem !important;
+  font-weight: 900 !important;
+  color: var(--accent-lime) !important;
+  letter-spacing: -0.02em;
+}
+
+.app-logo span {
+  color: var(--text-secondary) !important;
+  font-weight: 300;
+  font-size: 0.9rem;
+  margin-left: 8px;
+  font-family: var(--font-body) !important;
+}
+
+/* Subheaders */
+.stApp [data-testid="column"] h3,
+.stApp .stSubheader {
+  font-family: var(--font-display) !important;
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  margin-bottom: 0.8rem !important;
+}
+
+/* Upload / Camera zone */
+[data-testid="stFileUploader"],
+[data-testid="stCameraInput"] {
+  background: var(--bg-card) !important;
+  border: 1.5px dashed var(--border-bright) !important;
+  border-radius: var(--radius) !important;
+  padding: 1.5rem !important;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+[data-testid="stFileUploader"]:hover,
+[data-testid="stCameraInput"]:hover {
+  background: var(--bg-card-hover) !important;
+  border-color: var(--accent-lime) !important;
+}
+
+/* Image preview */
 [data-testid="stImage"] img {
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  border-radius: var(--radius) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-glow) !important;
+}
+
+/* Analyze Button */
+.stButton > button {
+  background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%) !important;
+  color: #0d1a0f !important;
+  font-family: var(--font-body) !important;
+  font-weight: 700 !important;
+  font-size: 0.97rem !important;
+  border-radius: 10px !important;
+  border: none !important;
+  width: 100% !important;
+  padding: 0.8em 0 !important;
+  box-shadow: 0 3px 20px rgba(100, 200, 80, 0.25) !important;
+  transition: transform 0.18s, box-shadow 0.18s !important;
+  letter-spacing: 0.03em;
+}
+.stButton > button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 28px rgba(100, 200, 80, 0.4) !important;
+  background: linear-gradient(135deg, #7fd460 0%, #c9f060 100%) !important;
+}
+
+/* Results panel */
+.results-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem 1.8rem;
+  box-shadow: var(--shadow-glow);
+}
+
+/* Markdown output — tables */
+.stApp [data-testid="stMarkdownContainer"] table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-body) !important;
+  font-size: 0.9rem;
+  margin: 1rem 0;
+}
+.stApp [data-testid="stMarkdownContainer"] th {
+  background: rgba(181, 229, 80, 0.10) !important;
+  color: var(--accent-lime) !important;
+  font-weight: 600;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-bright);
+  font-family: var(--font-mono) !important;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.stApp [data-testid="stMarkdownContainer"] td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary) !important;
+}
+.stApp [data-testid="stMarkdownContainer"] tr:hover td {
+  background: rgba(181, 229, 80, 0.04);
+}
+
+/* Inline text */
+.stApp [data-testid="stMarkdownContainer"] p {
+  color: var(--text-secondary) !important;
+  line-height: 1.75;
+  font-size: 0.95rem;
+}
+.stApp [data-testid="stMarkdownContainer"] strong {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+/* Success / info / error alerts */
+[data-testid="stAlert"] {
+  border-radius: var(--radius-sm) !important;
+  border-left-width: 3px !important;
+  font-family: var(--font-body) !important;
+}
+
+/* Spinner text */
+.stSpinner p {
+  color: var(--accent-sage) !important;
+  font-size: 0.88rem !important;
+}
+
+/* ── SIDEBAR ──────────────────────────────────────── */
+[data-testid="stSidebar"] {
+  background: var(--bg-panel) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+[data-testid="stSidebar"] .stTitle {
+  font-family: var(--font-display) !important;
+  color: var(--accent-lime) !important;
+  font-size: 1.4rem !important;
+}
+
+[data-testid="stSidebar"] .stRadio label {
+  color: var(--text-secondary) !important;
+  font-size: 0.93rem !important;
+}
+
+[data-testid="stSidebar"] [data-testid="stInfo"] {
+  background: rgba(181, 229, 80, 0.05) !important;
+  border-color: var(--border-bright) !important;
+  color: var(--text-secondary) !important;
+  font-size: 0.85rem !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* Divider */
+hr {
+  border-color: var(--border) !important;
+}
+
+/* ── ANIMATIONS ───────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* App page fade in */
+.main-app-content {
+  animation: fade-in 0.5s ease both;
+}
+
+/* Columns */
+[data-testid="column"] {
+  animation: fade-up 0.5s ease both;
+}
+[data-testid="column"]:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero-headline { font-size: 2.6rem !important; }
+  .hero-quote    { font-size: 1rem !important; }
 }
