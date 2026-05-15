@@ -81,13 +81,12 @@ if st.session_state.page == "landing":
 #  APP PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 else:
-
     # ── Sidebar ───────────────────────────────────────────────────────────────
-with st.sidebar:
-    st.markdown('<div class="app-logo">NutriScan<span>AI</span></div>',
-                unsafe_allow_html=True)
-    st.divider()
-
+    with st.sidebar:
+        st.markdown('<div class="app-logo">NutriScan<span>AI</span></div>',
+                    unsafe_allow_html=True)
+        st.divider()
+        
     if "input_mode" not in st.session_state:
         st.session_state.input_mode = "Camera"
 
