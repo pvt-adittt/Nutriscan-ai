@@ -534,21 +534,3 @@ button[kind="headerNoPadding"] svg {
     background: transparent !important;
     border-bottom: none !important;
 }
-
-
-/* ── Profile button ───────────────────────────────── */
-[data-testid="stHorizontalBlock"]:has(#profile_btn) {
-    position: absolute !important;
-    top: 52px !important;
-    right: 80px !important;
-    z-index: 2147483647 !important;
-    width: fit-content !important;
-}
-
-[data-testid="stHorizontalBlock"]:has(#profile_btn) button {
-    border-radius: 50% !important;
-    width: 36px !important;
-    height: 36px !important;
-    min-width: unset !important;
-    padding: 0 !important;
-}
