@@ -5,7 +5,7 @@ from PIL import Image
 import os
 
 # ── 1. PAGE CONFIG ────────────────────────────────────────────────────────────
-st.set_page_config(page_title="NutriScan AI", page_icon="🥗", layout="wide")
+st.set_page_config(page_title="NutriScan AI", layout="wide")
 
 # ── 2. LOAD EXTERNAL CSS ──────────────────────────────────────────────────────
 def load_css(filepath: str):
