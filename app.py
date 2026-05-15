@@ -24,8 +24,8 @@ def render_profile_badge():
     <style>
     .profile-badge-wrap {{
         position: absolute;
-        top: 20px;
-        right: -10px;
+        top: 0px;
+        right: -30px;
         z-index: 2147483647;
     }}
     .profile-avatar {{
