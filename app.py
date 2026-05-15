@@ -17,6 +17,20 @@ def load_css(filepath: str):
 
 load_css("style.css")
 
+# ── ADD THIS FUNCTION HERE ─────────────────────────────────────────────────
+def render_profile_badge():
+    uname = st.session_state.get("username", "User")
+    initial = uname[0].upper()
+    st.markdown(f"""
+    <div class="profile-badge-wrap">
+      <div class="profile-avatar" tabindex="0">
+        {initial}
+        <div class="profile-tooltip">{uname}</div>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 # ── 3. SESSION STATE ──────────────────────────────────────────────────────────
 if "page" not in st.session_state:
     st.session_state.page = "login"
@@ -54,6 +68,7 @@ if st.session_state.page == "login":
         if st.button("Login →", use_container_width=True):
             if username.strip() and password.strip():
                 st.session_state.logged_in = True
+                st.session_state.username = username.strip()  # ← ADD THIS
                 st.session_state.page = "landing"
                 st.rerun()
             else:
@@ -65,7 +80,9 @@ if st.session_state.page == "login":
 #  LANDING PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 if st.session_state.page == "landing":
-
+    render_profile_badge()   # ← ADD THIS
+    st.markdown("""...""")
+    
     st.markdown("""
     <div class="hero-section">
 
@@ -113,6 +130,10 @@ if st.session_state.page == "landing":
 #  APP PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 else:
+    render_profile_badge()   # ← ADD THIS
+
+    # ── Sidebar ───────
+    with st.sidebar:
 
     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
