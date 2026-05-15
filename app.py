@@ -21,44 +21,56 @@ def render_profile_badge():
     uname = st.session_state.get("username", "User")
     initial = uname[0].upper()
 
-    # Check if profile nav was triggered via query param
-    if st.query_params.get("goto") == "profile":
-        st.query_params.clear()
-        st.session_state.page = "profile"
-        st.rerun()
-
     st.markdown(f"""
     <style>
-    #ns-profile-btn {{
-        position: fixed;
-        top: 14px;
-        right: 18px;
-        z-index: 2147483647;
-        width: 38px;
-        height: 38px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%);
-        color: #0d1a0f;
-        font-weight: 700;
-        font-size: 1rem;
-        font-family: 'DM Sans', sans-serif;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 12px rgba(100,200,80,0.35);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        line-height: 1;
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"]) {{
+        position: fixed !important;
+        top: 8px !important;
+        right: 6rem !important;
+        z-index: 2147483647 !important;
+        width: auto !important;
+        background: transparent !important;
     }}
-    #ns-profile-btn:hover {{
-        transform: scale(1.08);
-        box-shadow: 0 4px 20px rgba(100,200,80,0.55);
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
+    [data-testid="column"] {{
+        width: auto !important;
+        flex: unset !important;
+        padding: 0 !important;
+        min-width: unset !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
+    button {{
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        min-height: 38px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        aspect-ratio: 1 / 1 !important;
+        line-height: 38px !important;
+        overflow: hidden !important;
+        font-size: 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%) !important;
+        color: #0d1a0f !important;
+        font-weight: 700 !important;
+        border: none !important;
+        box-shadow: 0 2px 12px rgba(100,200,80,0.35) !important;
+        cursor: pointer !important;
     }}
     </style>
-    <button id="ns-profile-btn" title="View Profile"
-        onclick="window.location.search='?goto=profile'">{initial}</button>
     """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([11, 1])
+    with col2:
+        if st.button(initial, key="profile_btn"):
+            st.session_state.page = "profile"
+            st.rerun()
+
+
 # ── 3. SESSION STATE ──────────────────────────────────────────────────────────
 if "page" not in st.session_state:
     st.session_state.page = "login"
