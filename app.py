@@ -81,29 +81,26 @@ if st.session_state.page == "landing":
 #  APP PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 else:
+
     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
         st.markdown('<div class="app-logo">NutriScan<span>AI</span></div>',
                     unsafe_allow_html=True)
         st.divider()
-        
-    if "input_mode" not in st.session_state:
-        st.session_state.input_mode = "Camera"
 
-    if st.button("📷 Camera", use_container_width=True):
-        st.session_state.input_mode = "Camera"
-    if st.button("📁 Upload File", use_container_width=True):
-        st.session_state.input_mode = "Upload File"
+        input_mode = st.radio(
+            "Input Method",
+            ("📷 Camera", "📁 Upload File"),
+            label_visibility="collapsed"
+        )
+        st.divider()
+        st.info("💡 Tip: Good lighting and full plate visibility improve accuracy.")
+        st.divider()
 
-    input_mode = st.session_state.input_mode
+        if st.button("← Back to Home"):
+            st.session_state.page = "landing"
+            st.rerun()
 
-    st.divider()
-    st.info("💡 Tip: Good lighting and full plate visibility improve accuracy.")
-    st.divider()
-    if st.button("← Back to Home"):
-        st.session_state.page = "landing"
-        st.rerun()
-        
     # ── App header ────────────────────────────────────────────────────────────
     st.markdown("""
     <div class="app-header">
