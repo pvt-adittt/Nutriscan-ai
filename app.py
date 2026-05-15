@@ -23,7 +23,7 @@ def render_profile_badge():
     st.markdown(f"""
     <style>
     .profile-badge-wrap {{
-        position: fixed;
+        position: absolute;
         top: 75px;
         right: 45px;
         z-index: 2147483647;
