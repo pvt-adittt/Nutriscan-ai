@@ -19,7 +19,9 @@ load_css("style.css")
 
 # ── 3. SESSION STATE ──────────────────────────────────────────────────────────
 if "page" not in st.session_state:
-    st.session_state.page = "landing"  # "landing" | "app"
+    st.session_state.page = "login"
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
 # ── 4. SECURE API AUTHENTICATION ─────────────────────────────────────────────
 try:
@@ -27,6 +29,36 @@ try:
     client = genai.Client(api_key=MY_API_KEY)
 except Exception:
     st.error("⚠️ Missing GOOGLE_API_KEY in Streamlit Secrets.")
+    st.stop()
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  LOGIN PAGE
+# ══════════════════════════════════════════════════════════════════════════════
+if st.session_state.page == "login":
+    col1, col2, col3 = st.columns([1, 1.2, 1])
+    with col2:
+        st.markdown("<br><br><br>", unsafe_allow_html=True)
+        st.markdown("""
+        <div style="text-align:center; margin-bottom: 2rem;">
+          <div style="font-family:'Playfair Display',serif; font-size:2.5rem;
+                      font-weight:900; color:#b5e550;">🥗 NutriScan</div>
+          <div style="color:#a8b89e; font-size:0.95rem; margin-top:0.4rem;">
+               Your AI-powered nutrition companion
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        username = st.text_input("Username", placeholder="Enter any username")
+        password = st.text_input("Password", placeholder="Enter any password", type="password")
+
+        if st.button("Login →", use_container_width=True):
+            if username.strip() and password.strip():
+                st.session_state.logged_in = True
+                st.session_state.page = "landing"
+                st.rerun()
+            else:
+                st.error("Please enter both a username and password.")
+
     st.stop()
 
 # ══════════════════════════════════════════════════════════════════════════════
