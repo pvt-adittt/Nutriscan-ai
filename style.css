@@ -536,36 +536,19 @@ button[kind="headerNoPadding"] svg {
 }
 
 
-/* ── Hide profile button text, keep clickable ─────── */
-[data-testid="stButton"] > button[kind="secondary"]:has(div p:contains("👤")) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: transparent !important;
+/* ── Profile button ───────────────────────────────── */
+[data-testid="stHorizontalBlock"]:has(#profile_btn) {
     position: absolute !important;
     top: 52px !important;
     right: 80px !important;
-    width: 36px !important;
-    height: 36px !important;
-    border-radius: 50% !important;
-    padding: 0 !important;
     z-index: 2147483647 !important;
-    opacity: 0 !important;
+    width: fit-content !important;
 }
 
-
-/* ── Profile button circle ────────────────────────── */
-div[data-testid="stHorizontalBlock"] div[data-testid="column"]:last-child button {
+[data-testid="stHorizontalBlock"]:has(#profile_btn) button {
     border-radius: 50% !important;
     width: 36px !important;
     height: 36px !important;
-    padding: 0 !important;
     min-width: unset !important;
-    aspect-ratio: 1 !important;
-}
-
-
-/* ── Fully hide profile trigger button ────────────── */
-button[data-testid="baseButton-secondary"] {
-    display: none !important;
+    padding: 0 !important;
 }
