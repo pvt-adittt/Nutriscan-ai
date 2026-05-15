@@ -19,87 +19,12 @@ load_css("style.css")
 
 def render_profile_badge():
     uname = st.session_state.get("username", "User")
-    initial = uname[0].upper()
-    st.markdown(f"""
-    <style>
-    .profile-badge-wrap {{
-        position: absolute;
-        top: 52px;
-        right: 80px;
-        z-index: 2147483647;
-    }}
-    .profile-avatar {{
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%);
-        color: #0d1a0f;
-        font-weight: 700;
-        font-size: 1rem;
-        display: flex !important;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        position: relative;
-        box-shadow: 0 2px 12px rgba(100,200,80,0.35);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        user-select: none;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }}
-    .profile-avatar:hover {{
-        transform: scale(1.08);
-        box-shadow: 0 4px 20px rgba(100,200,80,0.55);
-    }}
-    .profile-tooltip {{
-        position: absolute;
-        top: calc(100% + 8px);
-        right: 0;
-        background: #1a2e1d;
-        border: 1px solid rgba(181,229,80,0.35);
-        border-radius: 8px;
-        padding: 6px 14px;
-        font-size: 0.82rem;
-        font-weight: 500;
-        color: #b5e550 !important;
-        white-space: nowrap;
-        pointer-events: none;
-        opacity: 0;
-        transform: translateY(-4px);
-        transition: opacity 0.2s ease, transform 0.2s ease;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    }}
-    .profile-tooltip::before {{
-        content: '';
-        position: absolute;
-        top: -5px;
-        right: 12px;
-        width: 8px;
-        height: 8px;
-        background: #1a2e1d;
-        border-left: 1px solid rgba(181,229,80,0.35);
-        border-top: 1px solid rgba(181,229,80,0.35);
-        transform: rotate(45deg);
-    }}
-    .profile-avatar:hover .profile-tooltip {{
-        opacity: 1;
-        transform: translateY(0);
-    }}
-    </style>
-    <div class="profile-badge-wrap">
-      <div class="profile-avatar">
-        {initial}
-        <div class="profile-tooltip">👤 {uname}</div>
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Invisible Streamlit button overlapping the avatar for click detection
     col1, col2, col3 = st.columns([10, 1, 1])
     with col3:
-        if st.button("👤", key="profile_btn", help=f"View {uname}'s profile"):
+        if st.button("👤", key="profile_btn"):
             st.session_state.page = "profile"
             st.rerun()
+
 
 # ── 3. SESSION STATE ──────────────────────────────────────────────────────────
 if "page" not in st.session_state:
