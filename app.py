@@ -23,42 +23,32 @@ def render_profile_badge():
 
     st.markdown(f"""
     <style>
-    /* Target every possible wrapper */
-    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]),
-    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) > div,
-    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) [data-testid="column"],
-    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) [data-testid="stVerticalBlockBorderWrapper"],
-    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) [data-testid="stVerticalBlock"] {{
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) {{
         position: fixed !important;
         top: 8px !important;
         right: 5rem !important;
         z-index: 2147483647 !important;
         width: 38px !important;
         height: 38px !important;
-        min-width: unset !important;
-        max-width: 38px !important;
         padding: 0 !important;
         margin: 0 !important;
         background: transparent !important;
-        border: none !important;
-        flex: unset !important;
     }}
-
-    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) 
-    div.stButton,
-    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) 
-    div.stButton > button {{
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) * {{
         width: 38px !important;
         height: 38px !important;
         min-width: 38px !important;
         max-width: 38px !important;
         min-height: 38px !important;
         max-height: 38px !important;
-        border-radius: 50% !important;
         padding: 0 !important;
         margin: 0 !important;
+        flex: unset !important;
+        background: transparent !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) button {{
+        border-radius: 50% !important;
         aspect-ratio: 1 / 1 !important;
-        line-height: 38px !important;
         overflow: hidden !important;
         font-size: 1rem !important;
         display: flex !important;
@@ -72,6 +62,33 @@ def render_profile_badge():
         cursor: pointer !important;
     }}
     </style>
+
+    <script>
+    function makeCircle() {{
+        const doc = window.parent.document;
+        const allButtons = doc.querySelectorAll('button');
+        for (const btn of allButtons) {{
+            if (btn.innerText.trim() === '{initial}') {{
+                btn.style.setProperty('width', '38px', 'important');
+                btn.style.setProperty('height', '38px', 'important');
+                btn.style.setProperty('min-width', '38px', 'important');
+                btn.style.setProperty('max-width', '38px', 'important');
+                btn.style.setProperty('min-height', '38px', 'important');
+                btn.style.setProperty('max-height', '38px', 'important');
+                btn.style.setProperty('border-radius', '50%', 'important');
+                btn.style.setProperty('padding', '0', 'important');
+                btn.style.setProperty('aspect-ratio', '1 / 1', 'important');
+                btn.style.setProperty('overflow', 'hidden', 'important');
+                btn.style.setProperty('line-height', '38px', 'important');
+            }}
+        }}
+    }}
+
+    makeCircle();
+    setTimeout(makeCircle, 300);
+    setTimeout(makeCircle, 800);
+    setTimeout(makeCircle, 1500);
+    </script>
     """, unsafe_allow_html=True)
 
     col1, col2 = st.columns([11, 1])
