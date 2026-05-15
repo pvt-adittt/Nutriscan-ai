@@ -19,13 +19,54 @@ load_css("style.css")
 
 def render_profile_badge():
     uname = st.session_state.get("username", "User")
-    col1, col2, col3 = st.columns([10, 1, 1])
-    with col3:
-        if st.button("👤", key="profile_btn"):
+    initial = uname[0].upper()
+    st.markdown(f"""
+    <style>
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"]) {{
+        position: fixed !important;
+        top: 8px !important;
+        right: 6rem !important;
+        z-index: 2147483647 !important;
+        width: auto !important;
+        background: transparent !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"]) 
+    [data-testid="column"] {{
+        width: auto !important;
+        flex: unset !important;
+        padding: 0 !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
+    button {{
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        min-width: unset !important;
+        font-size: 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%) !important;
+        color: #0d1a0f !important;
+        font-weight: 700 !important;
+        border: none !important;
+        box-shadow: 0 2px 12px rgba(100,200,80,0.35) !important;
+        cursor: pointer !important;
+    }}
+    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
+    button:hover {{
+        transform: scale(1.08) !important;
+        box-shadow: 0 4px 20px rgba(100,200,80,0.55) !important;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+
+    col1, col2 = st.columns([11, 1])
+    with col2:
+        if st.button(initial, key="profile_btn"):
             st.session_state.page = "profile"
             st.rerun()
-
-
 # ── 3. SESSION STATE ──────────────────────────────────────────────────────────
 if "page" not in st.session_state:
     st.session_state.page = "login"
