@@ -53,7 +53,7 @@ if st.session_state.page == "landing":
       <!-- Tagline -->
       <p class="hero-tagline">
         Snap a photo of any meal and get instant calorie, protein,
-        carb &amp; fat breakdowns — powered by Gemini AI.
+        carb &amp; fat breakdowns — powered Artificial Intelligence.
       </p>
 
     </div>
@@ -134,7 +134,7 @@ else:
             if st.button("⚡ Analyze Nutrition", use_container_width=True):
                 success = False
                 for attempt in range(5):
-                    with st.spinner(f"Gemini AI is reading your plate… ({attempt + 1}/5)"):
+                    with st.spinner(f"Your plate is being read… ({attempt + 1}/5)"):
                         try:
                             response = client.models.generate_content(
                                 model="gemini-2.5-flash",
