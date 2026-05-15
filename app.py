@@ -20,69 +20,45 @@ load_css("style.css")
 def render_profile_badge():
     uname = st.session_state.get("username", "User")
     initial = uname[0].upper()
+
+    # Check if profile nav was triggered via query param
+    if st.query_params.get("goto") == "profile":
+        st.query_params.clear()
+        st.session_state.page = "profile"
+        st.rerun()
+
     st.markdown(f"""
     <style>
-    #profile-circle-btn {{
-        position: fixed !important;
-        top: 14px !important;
-        right: 18px !important;
-        z-index: 2147483647 !important;
-        width: 38px !important;
-        height: 38px !important;
-        border-radius: 50% !important;
-        background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%) !important;
-        color: #0d1a0f !important;
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-        border: none !important;
-        cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        box-shadow: 0 2px 12px rgba(100,200,80,0.35) !important;
-        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
-        font-family: 'DM Sans', sans-serif !important;
-        line-height: 1 !important;
-        padding: 0 !important;
-        aspect-ratio: 1 / 1 !important;
+    #ns-profile-btn {{
+        position: fixed;
+        top: 14px;
+        right: 18px;
+        z-index: 2147483647;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%);
+        color: #0d1a0f;
+        font-weight: 700;
+        font-size: 1rem;
+        font-family: 'DM Sans', sans-serif;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 12px rgba(100,200,80,0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        line-height: 1;
     }}
-    #profile-circle-btn:hover {{
-        transform: scale(1.08) !important;
-        box-shadow: 0 4px 20px rgba(100,200,80,0.55) !important;
+    #ns-profile-btn:hover {{
+        transform: scale(1.08);
+        box-shadow: 0 4px 20px rgba(100,200,80,0.55);
     }}
     </style>
-    <button id="profile-circle-btn" onclick="window.parent.postMessage({{type:'streamlit:setComponentValue', value:'profile'}}, '*')"
-        title="View Profile">{initial}</button>
-    <script>
-    const btn = document.getElementById('profile-circle-btn');
-    if (btn) {{
-        btn.addEventListener('click', () => {{
-            // Find and click the hidden Streamlit button
-            const stBtn = window.parent.document.querySelector('button[data-testid="baseButton-secondary"]');
-            if (stBtn) stBtn.click();
-        }});
-    }}
-    </script>
+    <button id="ns-profile-btn" title="View Profile"
+        onclick="window.location.search='?goto=profile'">{initial}</button>
     """, unsafe_allow_html=True)
-
-    # Hidden trigger button (0px, invisible)
-    st.markdown("""
-    <style>
-    div[data-testid="stHorizontalBlock"]:has(#hidden-profile-trigger) {
-        position: fixed !important;
-        top: -9999px !important;
-        visibility: hidden !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    col1, col2 = st.columns([11, 1])
-    with col2:
-        if st.button(initial, key="profile_btn"):
-            st.session_state.page = "profile"
-            st.rerun()
-
-
 # ── 3. SESSION STATE ──────────────────────────────────────────────────────────
 if "page" not in st.session_state:
     st.session_state.page = "login"
