@@ -452,3 +452,74 @@ button[kind="headerNoPadding"] svg {
   font-feature-settings: 'liga' !important;
   translate: no !important;
 }
+
+
+/* ── PROFILE BADGE ────────────────────────────────── */
+.profile-badge-wrap {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 9999;
+}
+
+.profile-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6dbf4e 0%, #b5e550 100%);
+  color: #0d1a0f;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 2px 12px rgba(100, 200, 80, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 20px rgba(100, 200, 80, 0.55);
+}
+
+.profile-tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--accent-lime) !important;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.profile-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border-bright);
+  border-top: 1px solid var(--border-bright);
+  transform: rotate(45deg);
+}
+
+.profile-avatar:hover .profile-tooltip,
+.profile-avatar:focus .profile-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
