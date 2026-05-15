@@ -62,7 +62,7 @@ if st.session_state.page == "landing":
     # ── CTA Button (must be outside html block for Streamlit to render it)
     col_a, col_b, col_c = st.columns([2, 1.4, 2])
     with col_b:
-        if st.button("🥗 Start Tracking", use_container_width=True):
+        if st.button("Start Tracking", use_container_width=True):
             st.session_state.page = "app"
             st.rerun()
 
