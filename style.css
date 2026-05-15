@@ -534,3 +534,15 @@ button[kind="headerNoPadding"] svg {
     background: transparent !important;
     border-bottom: none !important;
 }
+
+/* ── FORCE PROFILE BUTTON CIRCLE ─────────────────── */
+button[data-testid="baseButton-secondary"] {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    line-height: 1 !important;
+}
