@@ -523,3 +523,17 @@ button[kind="headerNoPadding"] svg {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ── Remove Streamlit default top padding ─────────── */
+[data-testid="stAppViewContainer"] > .main > div:first-child {
+    padding-top: 0rem !important;
+}
+
+[data-testid="stHeader"] {
+    display: none !important;
+}
+
+.block-container {
+    padding-top: 0rem !important;
+    padding-bottom: 0rem !important;
+}
