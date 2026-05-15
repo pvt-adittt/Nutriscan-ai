@@ -24,8 +24,8 @@ def render_profile_badge():
     <style>
     .profile-badge-wrap {{
         position: absolute;
-        top: 20px;
-        right: -30px;
+        top: 52px;
+        right: 80px;
         z-index: 2147483647;
     }}
     .profile-avatar {{
@@ -94,12 +94,23 @@ def render_profile_badge():
     </div>
     """, unsafe_allow_html=True)
 
+    # Invisible Streamlit button overlapping the avatar for click detection
+    col1, col2, col3 = st.columns([10, 1, 1])
+    with col3:
+        if st.button("👤", key="profile_btn", help=f"View {uname}'s profile"):
+            st.session_state.page = "profile"
+            st.rerun()
 
 # ── 3. SESSION STATE ──────────────────────────────────────────────────────────
 if "page" not in st.session_state:
     st.session_state.page = "login"
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
+if "username" not in st.session_state:
+    st.session_state.username = ""
+if "scan_history" not in st.session_state:
+    st.session_state.scan_history = []
+
 
 # ── 4. SECURE API AUTHENTICATION ─────────────────────────────────────────────
 try:
@@ -139,6 +150,76 @@ if st.session_state.page == "login":
                 st.error("Please enter both a username and password.")
 
     st.stop()
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  PROFILE PAGE
+# ══════════════════════════════════════════════════════════════════════════════
+if st.session_state.page == "profile":
+    uname = st.session_state.get("username", "User")
+
+    st.markdown(f"""
+    <div style="text-align:center; padding: 3rem 0 2rem;">
+        <div style="font-family:'Playfair Display',serif; font-size:3.5rem;
+                    font-weight:900; color:#b5e550; letter-spacing:-0.02em;">
+            {uname}
+        </div>
+        <div style="color:#a8b89e; font-size:1rem; margin-top:0.5rem;">
+            🥗 NutriScan AI — Personal Scan History
+        </div>
+        <div style="width:60px; height:3px; background:linear-gradient(90deg,#6dbf4e,#b5e550);
+                    border-radius:99px; margin: 1.2rem auto 0;">
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_a, col_b, col_c = st.columns([1, 2, 1])
+    with col_b:
+        if st.button("← Back", use_container_width=True):
+            st.session_state.page = "landing"
+            st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    history = st.session_state.get("scan_history", [])
+
+    if not history:
+        st.markdown("""
+        <div style="text-align:center; padding: 4rem 0; color:#5a7060; font-size:1rem;">
+            📷 No scans yet. Go analyze a meal first!
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div style="text-align:center; color:#a8b89e; font-size:0.9rem; margin-bottom:2rem;">
+            {len(history)} scan(s) recorded this session
+        </div>
+        """, unsafe_allow_html=True)
+
+        # Show most recent first
+        for i, scan in enumerate(reversed(history)):
+            st.markdown(f"""
+            <div style="background:#1a2e1d; border:1px solid rgba(181,229,80,0.12);
+                        border-radius:14px; padding:1.2rem 1.5rem; margin-bottom:0.5rem;">
+                <div style="color:#b5e550; font-size:0.78rem; font-weight:600;
+                            letter-spacing:0.08em; text-transform:uppercase;">
+                    Scan #{len(history) - i} &nbsp;·&nbsp; {scan['time']}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            col_img, col_res = st.columns([1, 1], gap="large")
+            with col_img:
+                st.image(scan["image"], use_container_width=True)
+            with col_res:
+                st.markdown(
+                    f'<div class="results-card">{scan["result"]}</div>',
+                    unsafe_allow_html=True
+                )
+            st.markdown("<hr style='border-color:rgba(181,229,80,0.1); margin:1.5rem 0;'>",
+                        unsafe_allow_html=True)
+
+    st.stop()
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  LANDING PAGE
@@ -265,6 +346,13 @@ else:
                                 f'<div class="results-card">{response.text}</div>',
                                 unsafe_allow_html=True
                             )
+                            # Save to scan history
+                            import datetime
+                            st.session_state.scan_history.append({
+                                "image": img,
+                                "result": response.text,
+                                "time": datetime.datetime.now().strftime("%d %b %Y, %I:%M %p")
+                            })
                             success = True
                             break
 
