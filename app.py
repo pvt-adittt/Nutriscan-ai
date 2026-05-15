@@ -2,85 +2,176 @@ import streamlit as st
 from google import genai
 import time
 from PIL import Image
+import os
 
-# 1. PAGE CONFIG & MODERN UI STYLING
+# ── 1. PAGE CONFIG ────────────────────────────────────────────────────────────
 st.set_page_config(page_title="NutriScan AI", page_icon="🥗", layout="wide")
 
-# Custom CSS for a cleaner, engineering-grade look
-st.markdown("""
-    <style>
-    .stApp { background-color: #fcfcfc; }
-    .stButton>button {
-        width: 100%;
-        border-radius: 8px;
-        height: 3.5em;
-        background-color: #2e7d32;
-        color: white;
-        font-weight: bold;
-        border: none;
-    }
-    .stButton>button:hover { background-color: #1b5e20; }
-    </style>
-    """, unsafe_allow_html=True)
+# ── 2. LOAD EXTERNAL CSS ──────────────────────────────────────────────────────
+def load_css(filepath: str):
+    """Read and inject a CSS file into the Streamlit app."""
+    css_path = os.path.join(os.path.dirname(__file__), filepath)
+    with open(css_path, "r") as f:
+        css = f.read()
+    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
 
-# 2. SECURE AUTHENTICATION
+load_css("style.css")
+
+# ── 3. SESSION STATE ──────────────────────────────────────────────────────────
+if "page" not in st.session_state:
+    st.session_state.page = "landing"  # "landing" | "app"
+
+# ── 4. SECURE API AUTHENTICATION ─────────────────────────────────────────────
 try:
     MY_API_KEY = st.secrets["GOOGLE_API_KEY"]
     client = genai.Client(api_key=MY_API_KEY)
 except Exception:
-    st.error("Missing API Key in Streamlit Secrets.")
+    st.error("⚠️ Missing GOOGLE_API_KEY in Streamlit Secrets.")
     st.stop()
 
-# 3. SIDEBAR (Clears up the main screen)
-with st.sidebar:
-    st.title("🥗 NutriScan")
-    st.write("Instant Nutritional Intelligence")
-    st.divider()
-    input_mode = st.radio("Select Input Method", ("Camera", "Upload File"))
-    st.divider()
-    st.info("Tip: Good lighting and clear food visibility improve accuracy.")
+# ══════════════════════════════════════════════════════════════════════════════
+#  LANDING PAGE
+# ══════════════════════════════════════════════════════════════════════════════
+if st.session_state.page == "landing":
 
-# 4. MAIN INTERFACE LAYOUT
-col_left, col_right = st.columns([1, 1], gap="large")
+    st.markdown("""
+    <div class="hero-section">
 
-with col_left:
-    st.subheader("📸 Food Input")
-    if input_mode == "Camera":
-        img_file = st.camera_input("Scanner", label_visibility="collapsed")
-    else:
-        img_file = st.file_uploader("Upload", type=["jpg", "jpeg", "png"], label_visibility="collapsed")
+      <!-- Badge chip -->
+      <div class="hero-badge">✦ AI-Powered Nutrition</div>
 
-    if img_file:
-        img = Image.open(img_file)
-        st.image(img, caption="Plate Preview", use_container_width=True)
+      <!-- Main headline -->
+      <h1 class="hero-headline">
+        Know What's<br>On Your <em>Plate.</em>
+      </h1>
 
-with col_right:
-    st.subheader("📊 Analysis Results")
-    
-    if img_file:
-        if st.button("Analyze Nutrition"):
-            # Increased retry count to handle 503 spikes
-            success = False
-            for attempt in range(5): 
-                with st.spinner(f"AI is processing (Attempt {attempt + 1}/5)..."):
-                    try:
-                        # Using 2.5-flash as confirmed by your dashboard
-                        response = client.models.generate_content(
-                            model="gemini-2.5-flash", 
-                            contents=["Identify the food. Provide a table: Item, Calories, Protein, Carbs, Fats. Add a health tip.", img]
-                        )
-                        st.success("Analysis Complete!")
-                        st.markdown(response.text)
-                        success = True
-                        break
-                    except Exception as e:
-                        if "503" in str(e) or "429" in str(e):
-                            time.sleep(4) # Wait longer between retries
-                            continue
-                        else:
-                            st.error(f"Technical Error: {e}")
+      <!-- Inspirational quote -->
+      <p class="hero-quote">
+        "Let food be thy medicine, and medicine be thy food."
+      </p>
+
+      <!-- Tagline -->
+      <p class="hero-tagline">
+        Snap a photo of any meal and get instant calorie, protein,
+        carb &amp; fat breakdowns — powered by Gemini AI.
+      </p>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── CTA Button (must be outside html block for Streamlit to render it)
+    col_a, col_b, col_c = st.columns([2, 1.4, 2])
+    with col_b:
+        if st.button("🥗 Start Tracking", use_container_width=True):
+            st.session_state.page = "app"
+            st.rerun()
+
+    # Feature pills row
+    st.markdown("""
+    <div class="feature-pills">
+      <span class="feature-pill">📷 Camera &amp; Upload</span>
+      <span class="feature-pill">⚡ Instant Results</span>
+      <span class="feature-pill">🥦 Macro Breakdown</span>
+      <span class="feature-pill">💡 Health Tips</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  APP PAGE
+# ══════════════════════════════════════════════════════════════════════════════
+else:
+
+    # ── Sidebar ───────────────────────────────────────────────────────────────
+    with st.sidebar:
+        st.markdown('<div class="app-logo">🥗 NutriScan<span>AI</span></div>',
+                    unsafe_allow_html=True)
+        st.divider()
+
+        input_mode = st.radio(
+            "Input Method",
+            ("📷 Camera", "📁 Upload File"),
+            label_visibility="collapsed"
+        )
+        st.divider()
+        st.info("💡 Tip: Good lighting and full plate visibility improve accuracy.")
+        st.divider()
+
+        if st.button("← Back to Home"):
+            st.session_state.page = "landing"
+            st.rerun()
+
+    # ── App header ────────────────────────────────────────────────────────────
+    st.markdown("""
+    <div class="app-header">
+      <span class="app-logo" style="font-size:1.25rem">🥗 NutriScan <span>— Instant Macro Analysis</span></span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Two-column layout ─────────────────────────────────────────────────────
+    col_left, col_right = st.columns([1, 1], gap="large")
+
+    with col_left:
+        st.subheader("📸 Food Input")
+
+        if input_mode == "📷 Camera":
+            img_file = st.camera_input("Scanner", label_visibility="collapsed")
+        else:
+            img_file = st.file_uploader(
+                "Upload",
+                type=["jpg", "jpeg", "png"],
+                label_visibility="collapsed"
+            )
+
+        if img_file:
+            img = Image.open(img_file)
+            st.image(img, caption="Plate Preview", use_container_width=True)
+
+    with col_right:
+        st.subheader("📊 Nutrition Results")
+
+        if img_file:
+            if st.button("⚡ Analyze Nutrition", use_container_width=True):
+                success = False
+                for attempt in range(5):
+                    with st.spinner(f"Gemini AI is reading your plate… ({attempt + 1}/5)"):
+                        try:
+                            response = client.models.generate_content(
+                                model="gemini-2.5-flash",
+                                contents=[
+                                    "Identify the food items in this image. "
+                                    "Provide a well-formatted markdown table with columns: "
+                                    "Food Item | Calories (kcal) | Protein (g) | Carbs (g) | Fats (g). "
+                                    "After the table, give a brief personalized health tip.",
+                                    img
+                                ]
+                            )
+                            st.success("✅ Analysis complete!")
+                            st.markdown(
+                                f'<div class="results-card">{response.text}</div>',
+                                unsafe_allow_html=True
+                            )
+                            success = True
                             break
-            if not success:
-                st.error("The AI server is currently overloaded. Please wait 30 seconds and try again.")
-    else:
-        st.info("Awaiting input image...")
+
+                        except Exception as e:
+                            err = str(e)
+                            if "503" in err or "429" in err:
+                                time.sleep(4)
+                                continue
+                            else:
+                                st.error(f"Technical error: {e}")
+                                break
+
+                if not success:
+                    st.error(
+                        "The AI server is currently busy. "
+                        "Please wait 30 seconds and try again."
+                    )
+        else:
+            st.markdown("""
+            <div style="padding: 2rem 1.5rem; background: #1a2e1d; border: 1.5px dashed rgba(181,229,80,0.18);
+                        border-radius: 14px; text-align: center; color: #5a7060; font-size: 0.95rem;">
+              📷 Upload or capture a photo to begin analysis
+            </div>
+            """, unsafe_allow_html=True)
