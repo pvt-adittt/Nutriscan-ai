@@ -41,7 +41,7 @@ if st.session_state.page == "login":
         st.markdown("""
         <div style="text-align:center; margin-bottom: 2rem;">
           <div style="font-family:'Playfair Display',serif; font-size:2.5rem;
-                      font-weight:900; color:#b5e550;">NutriScan</div>
+                      font-weight:900; color:#b5e550;">NutriScan AI</div>
           <div style="color:#a8b89e; font-size:0.95rem; margin-top:0.4rem;">
                Your AI-powered nutrition companion
           </div>
