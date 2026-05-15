@@ -88,11 +88,16 @@ else:
                     unsafe_allow_html=True)
         st.divider()
 
-        input_mode = st.radio(
-            "Input Method",
-            ("📷 Camera", "📁 Upload File"),
-            label_visibility="collapsed"
-        )
+    if "input_mode" not in st.session_state:
+            st.session_state.input_mode = "Camera"
+
+    if st.button("📷 Camera", use_container_width=True):
+        st.session_state.input_mode = "Camera"
+    if st.button("📁 Upload File", use_container_width=True):
+        st.session_state.input_mode = "Upload File"
+
+    input_mode = st.session_state.input_mode
+
         st.divider()
         st.info("💡 Tip: Good lighting and full plate visibility improve accuracy.")
         st.divider()
