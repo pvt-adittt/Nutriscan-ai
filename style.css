@@ -537,3 +537,12 @@ button[kind="headerNoPadding"] svg {
     padding-top: 0rem !important;
     padding-bottom: 0rem !important;
 }
+
+
+/* ── Keep sidebar toggle visible ──────────────────── */
+[data-testid="collapsedControl"] {
+    display: block !important;
+    visibility: visible !important;
+    top: 10px !important;
+    z-index: 999999 !important;
+}
