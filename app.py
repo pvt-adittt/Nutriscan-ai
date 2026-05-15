@@ -17,6 +17,92 @@ def load_css(filepath: str):
 
 load_css("style.css")
 
+
+def render_particle_background():
+    st.markdown("""
+    <canvas id="particle-canvas" style="
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 0;
+        pointer-events: none;
+    "></canvas>
+
+    <script>
+    (function() {
+        const canvas = document.getElementById('particle-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width  = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        const PARTICLE_COUNT = 80;
+        const MAX_DIST       = 150;
+        const SPEED          = 0.5;
+        const DOT_RADIUS     = 2.5;
+        const DOT_COLOR      = 'rgba(181, 229, 80, 0.75)';
+        const LINE_COLOR     = 'rgba(181, 229, 80, ';
+
+        const particles = Array.from({ length: PARTICLE_COUNT }, () => ({
+            x:  Math.random() * canvas.width,
+            y:  Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * SPEED,
+            vy: (Math.random() - 0.5) * SPEED,
+        }));
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Move particles
+            for (const p of particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width)  p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            }
+
+            // Draw lines
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx   = particles[i].x - particles[j].x;
+                    const dy   = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < MAX_DIST) {
+                        const alpha = (1 - dist / MAX_DIST) * 0.55;
+                        ctx.beginPath();
+                        ctx.strokeStyle = LINE_COLOR + alpha + ')';
+                        ctx.lineWidth   = 0.8;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw dots
+            for (const p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, DOT_RADIUS, 0, Math.PI * 2);
+                ctx.fillStyle = DOT_COLOR;
+                ctx.fill();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    })();
+    </script>
+    """, unsafe_allow_html=True)
+
+
 def render_profile_badge():
     uname = st.session_state.get("username", "User")
     initial = uname[0].upper()
@@ -222,6 +308,7 @@ if st.session_state.page == "profile":
 #  LANDING PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 if st.session_state.page == "landing":
+    render_particle_background()
     render_profile_badge()   # ← ADD THIS
     st.markdown("""...""")
     
@@ -272,6 +359,7 @@ if st.session_state.page == "landing":
 #  APP PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 else:
+    render_particle_background()
     render_profile_badge()   # ← ADD THIS
 
      # ── Sidebar ───────────────────────────────────────────────────────────────
