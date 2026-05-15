@@ -23,30 +23,40 @@ def render_profile_badge():
 
     st.markdown(f"""
     <style>
-    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"]) {{
+    /* Target every possible wrapper */
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]),
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) > div,
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) [data-testid="column"],
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) [data-testid="stVerticalBlockBorderWrapper"],
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) [data-testid="stVerticalBlock"] {{
         position: fixed !important;
         top: 8px !important;
-        right: 6rem !important;
+        right: 5rem !important;
         z-index: 2147483647 !important;
-        width: auto !important;
-        background: transparent !important;
-    }}
-    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
-    [data-testid="column"] {{
-        width: auto !important;
-        flex: unset !important;
-        padding: 0 !important;
+        width: 38px !important;
+        height: 38px !important;
         min-width: unset !important;
+        max-width: 38px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        flex: unset !important;
     }}
-    div[data-testid="stHorizontalBlock"]:has(button[data-testid="baseButton-secondary"])
-    button {{
+
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) 
+    div.stButton,
+    div[data-testid="stHorizontalBlock"]:has(button[key="profile_btn"]) 
+    div.stButton > button {{
         width: 38px !important;
         height: 38px !important;
         min-width: 38px !important;
         max-width: 38px !important;
         min-height: 38px !important;
+        max-height: 38px !important;
         border-radius: 50% !important;
         padding: 0 !important;
+        margin: 0 !important;
         aspect-ratio: 1 / 1 !important;
         line-height: 38px !important;
         overflow: hidden !important;
