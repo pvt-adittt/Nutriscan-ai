@@ -132,10 +132,7 @@ if st.session_state.page == "landing":
 else:
     render_profile_badge()   # ← ADD THIS
 
-    # ── Sidebar ───────
-    with st.sidebar:
-
-    # ── Sidebar ───────────────────────────────────────────────────────────────
+     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
         st.markdown('<div class="app-logo">NutriScan<span>AI</span></div>',
                     unsafe_allow_html=True)
