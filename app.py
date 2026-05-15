@@ -118,7 +118,7 @@ else:
             img_file = st.camera_input("Scanner", label_visibility="collapsed")
         else:
             img_file = st.file_uploader(
-                " ",
+                "upload",
                 type=["jpg", "jpeg", "png"],
                 label_visibility="collapsed"
             )
