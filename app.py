@@ -22,8 +22,6 @@ if "page" not in st.session_state:
     st.session_state.page = "login"
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-if "username" not in st.session_state:
-    st.session_state.username = ""
 
 # ── 4. SECURE API AUTHENTICATION ─────────────────────────────────────────────
 try:
@@ -32,21 +30,6 @@ try:
 except Exception:
     st.error("⚠️ Missing GOOGLE_API_KEY in Streamlit Secrets.")
     st.stop()
-
-# ── 5. GLOBAL UI ELEMENTS (Profile Button) ───────────────────────────────────
-# This renders the floating profile icon on every page EXCEPT the login screen.
-if st.session_state.logged_in and st.session_state.username:
-    profile_html = f"""
-    <div class="profile-badge">
-        <span class="profile-icon">👤</span>
-        <div class="profile-hover-content">
-            <span style="font-size: 0.75rem; color: var(--text-secondary);">Logged in as</span><br>
-            <strong style="color: var(--accent-lime); font-size: 1.05rem;">{st.session_state.username}</strong>
-        </div>
-    </div>
-    """
-    st.markdown(profile_html, unsafe_allow_html=True)
-
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  LOGIN PAGE
@@ -70,8 +53,6 @@ if st.session_state.page == "login":
 
         if st.button("Login →", use_container_width=True):
             if username.strip() and password.strip():
-                # Capture the username before routing
-                st.session_state.username = username.strip()
                 st.session_state.logged_in = True
                 st.session_state.page = "landing"
                 st.rerun()
@@ -88,16 +69,20 @@ if st.session_state.page == "landing":
     st.markdown("""
     <div class="hero-section">
 
+      <!-- Badge chip -->
       <div class="hero-badge">✦ AI-Powered Nutrition</div>
 
+      <!-- Main headline -->
       <h1 class="hero-headline">
         Know What's<br>On Your <em>Plate.</em>
       </h1>
 
+      <!-- Inspirational quote -->
       <p class="hero-quote">
         "Let food be thy medicine, and medicine be thy food."
       </p>
 
+      <!-- Tagline -->
       <p class="hero-tagline">
         Snap a photo of any meal and get instant calorie, protein,
         carb &amp; fat breakdowns — powered Artificial Intelligence.
@@ -106,7 +91,7 @@ if st.session_state.page == "landing":
     </div>
     """, unsafe_allow_html=True)
 
-    # ── CTA Button
+    # ── CTA Button (must be outside html block for Streamlit to render it)
     col_a, col_b, col_c = st.columns([2, 1.4, 2])
     with col_b:
         if st.button("Start Tracking", use_container_width=True):
@@ -222,3 +207,4 @@ else:
               📷 Upload or capture a photo to begin analysis
             </div>
             """, unsafe_allow_html=True)
+
