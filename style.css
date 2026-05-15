@@ -524,13 +524,24 @@ button[kind="headerNoPadding"] svg {
   transform: translateY(0);
 }
 
-/* ── Remove Streamlit default top padding ─────────── */
-.block-container {
-    padding-top: 1rem !important;
-    padding-bottom: 0rem !important;
+/* ── Hide header but keep sidebar toggle ──────────── */
+[data-testid="stHeader"] {
+    display: none !important;
 }
 
-[data-testid="stHeader"] {
-    background: transparent !important;
-    border-bottom: none !important;
+[data-testid="collapsedControl"] {
+    display: flex !important;
+    visibility: visible !important;
+    position: fixed !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 2147483647 !important;
+    background: var(--bg-card) !important;
+    border-radius: 8px !important;
+    padding: 4px !important;
+}
+
+.block-container {
+    padding-top: 0rem !important;
+    padding-bottom: 0rem !important;
 }
