@@ -84,7 +84,7 @@ def render_profile_badge():
     """, unsafe_allow_html=True)
 
     # Hidden button
-    if st.button("p", key="profile_btn", label_visibility="collapsed"):
+    if st.button("p", key="profile_btn"):
         st.session_state.page = "profile"
         st.rerun()
 
