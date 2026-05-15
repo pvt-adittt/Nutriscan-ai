@@ -84,7 +84,7 @@ else:
 
     # ── Sidebar ───────────────────────────────────────────────────────────────
     with st.sidebar:
-        st.markdown('<div class="app-logo">🥗 NutriScan<span>AI</span></div>',
+        st.markdown('<div class="app-logo">NutriScan<span>AI</span></div>',
                     unsafe_allow_html=True)
         st.divider()
 
@@ -104,7 +104,7 @@ else:
     # ── App header ────────────────────────────────────────────────────────────
     st.markdown("""
     <div class="app-header">
-      <span class="app-logo" style="font-size:1.25rem">🥗 NutriScan <span>— Instant Macro Analysis</span></span>
+      <span class="app-logo" style="font-size:1.25rem">NutriScan <span>— Instant Macro Analysis</span></span>
     </div>
     """, unsafe_allow_html=True)
 
