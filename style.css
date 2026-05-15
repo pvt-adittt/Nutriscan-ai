@@ -563,3 +563,9 @@ div[data-testid="stHorizontalBlock"] div[data-testid="column"]:last-child button
     min-width: unset !important;
     aspect-ratio: 1 !important;
 }
+
+
+/* ── Fully hide profile trigger button ────────────── */
+button[data-testid="baseButton-secondary"] {
+    display: none !important;
+}
