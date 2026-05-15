@@ -524,18 +524,13 @@ button[kind="headerNoPadding"] svg {
   transform: translateY(0);
 }
 
-/* ── Hide only Streamlit toolbar buttons ──────────── */
-[data-testid="stToolbar"] {
-    display: none !important;
+/* ── Remove Streamlit default top padding ─────────── */
+.block-container {
+    padding-top: 1rem !important;
+    padding-bottom: 0rem !important;
 }
 
 [data-testid="stHeader"] {
     background: transparent !important;
     border-bottom: none !important;
-    height: 0px !important;
-}
-
-.block-container {
-    padding-top: 0.5rem !important;
-    padding-bottom: 0rem !important;
 }
