@@ -552,3 +552,14 @@ button[kind="headerNoPadding"] svg {
     z-index: 2147483647 !important;
     opacity: 0 !important;
 }
+
+
+/* ── Profile button circle ────────────────────────── */
+div[data-testid="stHorizontalBlock"] div[data-testid="column"]:last-child button {
+    border-radius: 50% !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    min-width: unset !important;
+    aspect-ratio: 1 !important;
+}
