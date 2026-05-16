@@ -233,6 +233,10 @@ if st.session_state.page == "login":
 #  PROFILE PAGE
 # ══════════════════════════════════════════════════════════════════════════════
 if st.session_state.page == "profile":
+    import re
+    import datetime
+    import plotly.graph_objects as go
+
     uname = st.session_state.get("username", "User")
 
     st.markdown(f"""
@@ -260,27 +264,173 @@ if st.session_state.page == "profile":
 
     history = st.session_state.get("scan_history", [])
 
+    # ── MACRO PARSING HELPER ──────────────────────────────────────────────────
+    def parse_macros(result_text):
+        """Extract total calories, protein, carbs, fats from the markdown table."""
+        calories = protein = carbs = fats = 0.0
+        rows = re.findall(
+            r'\|\s*(?!Food Item|[-\s|]+)(.+?)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|\s*([\d.]+)\s*\|',
+            result_text
+        )
+        for row in rows:
+            try:
+                calories += float(row[1])
+                protein  += float(row[2])
+                carbs    += float(row[3])
+                fats     += float(row[4])
+            except ValueError:
+                continue
+        return {"calories": calories, "protein": protein, "carbs": carbs, "fats": fats}
+
+    # ── AGGREGATE TODAY'S MACROS ──────────────────────────────────────────────
+    today_str = datetime.datetime.now().strftime("%d %b %Y")
+    today_macros = {"calories": 0.0, "protein": 0.0, "carbs": 0.0, "fats": 0.0}
+    all_macros   = {"calories": 0.0, "protein": 0.0, "carbs": 0.0, "fats": 0.0}
+
+    for scan in history:
+        m = parse_macros(scan["result"])
+        for k in all_macros:
+            all_macros[k] += m[k]
+        if today_str in scan["time"]:
+            for k in today_macros:
+                today_macros[k] += m[k]
+
     if not history:
         st.markdown("""
         <div style="text-align:center; padding: 4rem 0; color:#5a7060; font-size:1rem;">
             📷 No scans yet. Go analyze a meal first!
         </div>
         """, unsafe_allow_html=True)
+
     else:
+        # ── SUMMARY STAT CARDS ────────────────────────────────────────────────
+        st.markdown("""
+        <div style="text-align:center; color:#b5e550; font-size:0.85rem;
+                    font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+                    margin-bottom:1rem;">
+            Today's Totals
+        </div>
+        """, unsafe_allow_html=True)
+
+        c1, c2, c3, c4 = st.columns(4)
+        for col, label, value, unit, color in [
+            (c1, "🔥 Calories", today_macros["calories"], "kcal", "#e8c96a"),
+            (c2, "💪 Protein",  today_macros["protein"],  "g",    "#7aab7a"),
+            (c3, "🌾 Carbs",    today_macros["carbs"],    "g",    "#b5e550"),
+            (c4, "🥑 Fats",     today_macros["fats"],     "g",    "#e07b5a"),
+        ]:
+            with col:
+                st.markdown(f"""
+                <div style="background:#1a2e1d; border:1px solid rgba(181,229,80,0.15);
+                            border-radius:14px; padding:1.2rem; text-align:center;">
+                    <div style="font-size:0.8rem; color:#a8b89e; margin-bottom:0.3rem;">{label}</div>
+                    <div style="font-size:2rem; font-weight:800; color:{color};
+                                font-family:'Playfair Display',serif;">{value:.0f}</div>
+                    <div style="font-size:0.75rem; color:#5a7060;">{unit}</div>
+                </div>
+                """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── MACRO DONUT CHART (Today) ─────────────────────────────────────────
+        st.markdown("""
+        <div style="text-align:center; color:#b5e550; font-size:0.85rem;
+                    font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+                    margin-bottom:0.5rem;">
+            Today's Macro Split
+        </div>
+        """, unsafe_allow_html=True)
+
+        col_chart1, col_chart2 = st.columns([1, 1])
+
+        with col_chart1:
+            donut = go.Figure(go.Pie(
+                labels=["Protein", "Carbs", "Fats"],
+                values=[
+                    today_macros["protein"],
+                    today_macros["carbs"],
+                    today_macros["fats"]
+                ],
+                hole=0.65,
+                marker=dict(colors=["#7aab7a", "#b5e550", "#e07b5a"],
+                            line=dict(color="#0d1a0f", width=2)),
+                textinfo="label+percent",
+                textfont=dict(color="#f0ede4", size=12),
+                hovertemplate="<b>%{label}</b><br>%{value:.1f}g<extra></extra>"
+            ))
+            donut.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                showlegend=False,
+                margin=dict(t=20, b=20, l=20, r=20),
+                height=280,
+                annotations=[dict(
+                    text=f"<b>{today_macros['calories']:.0f}</b><br>kcal",
+                    x=0.5, y=0.5, font_size=16,
+                    font_color="#e8c96a", showarrow=False
+                )]
+            )
+            st.plotly_chart(donut, use_container_width=True, config={"displayModeBar": False})
+
+        # ── BAR CHART — per scan macros ───────────────────────────────────────
+        with col_chart2:
+            scan_labels  = [f"Scan {i+1}" for i in range(len(history))]
+            proteins     = [parse_macros(s["result"])["protein"]  for s in history]
+            carbss       = [parse_macros(s["result"])["carbs"]    for s in history]
+            fatss        = [parse_macros(s["result"])["fats"]     for s in history]
+
+            bar = go.Figure()
+            bar.add_trace(go.Bar(name="Protein", x=scan_labels, y=proteins,
+                                 marker_color="#7aab7a"))
+            bar.add_trace(go.Bar(name="Carbs",   x=scan_labels, y=carbss,
+                                 marker_color="#b5e550"))
+            bar.add_trace(go.Bar(name="Fats",    x=scan_labels, y=fatss,
+                                 marker_color="#e07b5a"))
+            bar.update_layout(
+                barmode="group",
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(color="#a8b89e", size=11),
+                legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#a8b89e")),
+                xaxis=dict(gridcolor="rgba(181,229,80,0.08)"),
+                yaxis=dict(gridcolor="rgba(181,229,80,0.08)", title="grams"),
+                margin=dict(t=20, b=20, l=20, r=20),
+                height=280,
+            )
+            st.plotly_chart(bar, use_container_width=True, config={"displayModeBar": False})
+
+        st.markdown("<br>", unsafe_allow_html=True)
         st.markdown(f"""
-        <div style="text-align:center; color:#a8b89e; font-size:0.9rem; margin-bottom:2rem;">
+        <div style="text-align:center; color:#a8b89e; font-size:0.9rem; margin-bottom:1.5rem;">
             {len(history)} scan(s) recorded this session
         </div>
         """, unsafe_allow_html=True)
 
-        # Show most recent first
+        # ── SCAN HISTORY LIST ─────────────────────────────────────────────────
+        st.markdown("""
+        <div style="text-align:center; color:#b5e550; font-size:0.85rem;
+                    font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+                    margin-bottom:1rem;">
+            Scan History
+        </div>
+        """, unsafe_allow_html=True)
+
         for i, scan in enumerate(reversed(history)):
+            m = parse_macros(scan["result"])
             st.markdown(f"""
             <div style="background:#1a2e1d; border:1px solid rgba(181,229,80,0.12);
                         border-radius:14px; padding:1.2rem 1.5rem; margin-bottom:0.5rem;">
-                <div style="color:#b5e550; font-size:0.78rem; font-weight:600;
-                            letter-spacing:0.08em; text-transform:uppercase;">
-                    Scan #{len(history) - i} &nbsp;·&nbsp; {scan['time']}
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="color:#b5e550; font-size:0.78rem; font-weight:600;
+                                letter-spacing:0.08em; text-transform:uppercase;">
+                        Scan #{len(history) - i} &nbsp;·&nbsp; {scan['time']}
+                    </div>
+                    <div style="display:flex; gap:1.2rem; font-size:0.82rem; color:#a8b89e;">
+                        <span>🔥 {m['calories']:.0f} kcal</span>
+                        <span>💪 {m['protein']:.0f}g</span>
+                        <span>🌾 {m['carbs']:.0f}g</span>
+                        <span>🥑 {m['fats']:.0f}g</span>
+                    </div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -293,12 +443,13 @@ if st.session_state.page == "profile":
                     f'<div class="results-card">{scan["result"]}</div>',
                     unsafe_allow_html=True
                 )
-            st.markdown("<hr style='border-color:rgba(181,229,80,0.1); margin:1.5rem 0;'>",
-                        unsafe_allow_html=True)
+            st.markdown(
+                "<hr style='border-color:rgba(181,229,80,0.1); margin:1.5rem 0;'>",
+                unsafe_allow_html=True
+            )
 
     st.stop()
-
-
+    
 # ══════════════════════════════════════════════════════════════════════════════
 #  LANDING PAGE
 # ══════════════════════════════════════════════════════════════════════════════
